@@ -10,13 +10,18 @@ public class ReceptorThreads {
 
         try (ServerSocket serverSocket = new ServerSocket(PORTA)) {
             while (true) {
+                System.out.println("\n[Aguardando conexão de um cliente...]");
                 Socket socket = serverSocket.accept();
                 System.out.println("Conexão aceita de: " + socket.getInetAddress().getHostAddress());
 
                 try (ObjectOutputStream transmissor = new ObjectOutputStream(socket.getOutputStream());
                      ObjectInputStream receptor = new ObjectInputStream(socket.getInputStream())) {
 
+                    System.out.println("[R] Streams de comunicação configuradas.");
+
                     while (true) {
+                        System.out.println("\n[R] Aguardando objeto do cliente...");
+
                         Object obj;
                         try {
                             obj = receptor.readObject();
@@ -26,28 +31,35 @@ public class ReceptorThreads {
                         }
 
                         if (obj instanceof Pedido pedido) {
-                            System.out.println("[R] Pedido recebido. Vetor tamanho: " + pedido.getNumeros().length);
+                            System.out.println("[R] Pedido recebido!");
+                            System.out.println(" → Vetor recebido com " + pedido.getNumeros().length + " elementos");
+                            System.out.println(" → Iniciando ordenação paralela...");
 
-                            // Ordena o vetor usando o método paralelo da classe Pedido
+                            long inicio = System.currentTimeMillis();
                             pedido.ordenar();
+                            long fim = System.currentTimeMillis();
 
-                            // Envia o vetor ordenado de volta
+                            System.out.println(" → Ordenação concluída em " + (fim - inicio) + " ms");
+                            System.out.println(" → Enviando resposta para o cliente...");
+
                             transmissor.writeObject(new Resposta(pedido.getNumeros()));
                             transmissor.flush();
-                            System.out.println("[R] Resposta enviada. Vetor ordenado.");
+
+                            System.out.println("[R] Resposta enviada com sucesso!");
 
                         } else if (obj instanceof ComunicadoEncerramento) {
-                            System.out.println("[R] Cliente encerrou a conexão.");
+                            System.out.println("[R] Cliente solicitou encerramento da conexão.");
                             break;
+
                         } else {
                             System.out.println("[R] Objeto desconhecido recebido: " + obj.getClass().getSimpleName());
                         }
                     }
 
                 } catch (ClassNotFoundException e) {
-                    System.err.println("[R] Classe não reconhecida: " + e.getMessage());
+                    System.err.println("[R] Classe não reconhecida no objeto recebido: " + e.getMessage());
                 } catch (IOException e) {
-                    System.err.println("[R] Erro na comunicação: " + e.getMessage());
+                    System.err.println("[R] Erro de comunicação com o cliente: " + e.getMessage());
                 } finally {
                     try {
                         socket.close();
@@ -57,6 +69,7 @@ public class ReceptorThreads {
                     }
                 }
             }
+
         } catch (IOException e) {
             System.err.println("Erro no ServerSocket: " + e.getMessage());
         }
