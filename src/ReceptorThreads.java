@@ -42,9 +42,7 @@ public class ReceptorThreads {
 
                             long inicio = System.currentTimeMillis();
 
-                            // ----------------------------------------------------------------------------------------------------
-                            // PARALELIZAÇÃO AQUI!
-                            // ----------------------------------------------------------------------------------------------------
+                      
                             int nThreads = Runtime.getRuntime().availableProcessors();
                             Thread[] threads = new Thread[nThreads];
 
@@ -114,9 +112,7 @@ public class ReceptorThreads {
         }
     }
 
-    // -------------------------------------------------------------------------
-    // MÉTODO DE MERGE FINAL DAS PARTES
-    // -------------------------------------------------------------------------
+   
     private static void mergeFinal(byte[] v, int nPartes) {
         int parte = v.length / nPartes;
 

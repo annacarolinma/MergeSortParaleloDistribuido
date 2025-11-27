@@ -1,6 +1,9 @@
 import java.io.Serializable;
 
 public class Pedido extends Comunicado implements Serializable {
+	
+	private static final long serialVersionUID = 109653276161385765L;
+
     private byte[] numeros;
 
     public Pedido(byte[] numeros) {
