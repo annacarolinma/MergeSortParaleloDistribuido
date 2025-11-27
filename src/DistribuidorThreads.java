@@ -16,6 +16,7 @@ public class DistribuidorThreads {
             System.out.println("     SISTEMA DE ORDENAÇÃO DISTRIBUÍDA");
             System.out.println("==============================================");
 
+            // ======== CONECTA APENAS UMA VEZ ========
             Socket[] sockets = new Socket[SERVER_IPS.length];
             ObjectOutputStream[] outs = new ObjectOutputStream[SERVER_IPS.length];
             ObjectInputStream[] ins = new ObjectInputStream[SERVER_IPS.length];
@@ -29,11 +30,13 @@ public class DistribuidorThreads {
 
             boolean continuar = true;
 
+            // ======== LOOP PRINCIPAL (SEM DESCONECTAR) ========
             while (continuar) {
 
                 System.out.print("\nDigite o tamanho do vetor que deseja ordenar: ");
                 int tamanhoVetor = Teclado.getUmInt();
 
+                // Pergunta visualizar vetor
                 char opcaoMostrar;
                 do {
                     System.out.print("Deseja visualizar o vetor gerado? (s/n): ");
@@ -43,6 +46,7 @@ public class DistribuidorThreads {
 
                 boolean mostrarVetor = (opcaoMostrar == 's' || opcaoMostrar == 'S');
 
+                // Criar vetor
                 byte[] vetorGrande = new byte[tamanhoVetor];
                 for (int i = 0; i < tamanhoVetor; i++) {
                     vetorGrande[i] = (byte) ((int) (Math.random() * 256) - 128);
@@ -95,6 +99,7 @@ public class DistribuidorThreads {
 
                 byte[] vetorFinal = mergeVariosVetores(respostasParciais);
 
+                // ======== MOSTRAR RESULTADO COMPLETO ========
                 System.out.println("\n============ RESULTADO FINAL ============");
                 System.out.println("Tamanho do vetor final: " + vetorFinal.length);
                 System.out.println("Tempo total: " + segundos + " segundos");
@@ -123,6 +128,7 @@ public class DistribuidorThreads {
                 continuar = (resp == 's' || resp == 'S');
             }
 
+            // ======== ENCERRA SERVIDORES SOMENTE AQUI ========
             System.out.println("\nEncerrando servidores...");
 
             for (int i = 0; i < SERVER_IPS.length; i++) {
