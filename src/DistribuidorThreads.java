@@ -5,7 +5,7 @@ import java.util.Arrays;
 
 public class DistribuidorThreads {
 
-    private static final String[] SERVER_IPS = {"192.168.0.154"};
+    private static final String[] SERVER_IPS = {"26.83.104.38", "26.124.44.200"};
     private static final int PORT = 12345;
 
     public static void main(String[] args) {

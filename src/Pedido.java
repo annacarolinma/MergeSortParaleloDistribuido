@@ -1,5 +1,3 @@
-import java.io.Serializable;
-
 public class Pedido extends Comunicado implements Serializable {
     private byte[] numeros;
 
@@ -11,14 +9,8 @@ public class Pedido extends Comunicado implements Serializable {
         return numeros;
     }
 
-    // ---------------------------------------------------
-    // Método ordenar(): Merge Sort sequencial
-    // ---------------------------------------------------
-    public void ordenar() {
-        if (numeros == null || numeros.length <= 1)
-            return;
-
-        mergeSort(0, numeros.length - 1);
+    public void ordenar(int inicio, int fim) {
+        mergeSort(inicio, fim);
     }
 
     private void mergeSort(int inicio, int fim) {
