@@ -1,3 +1,5 @@
+import java.io.Serializable;
+
 public class Pedido extends Comunicado implements Serializable {
     private byte[] numeros;
 
