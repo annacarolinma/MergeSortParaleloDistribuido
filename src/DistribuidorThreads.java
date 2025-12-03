@@ -16,7 +16,6 @@ public class DistribuidorThreads {
             System.out.println("     SISTEMA DE ORDENAÇÃO DISTRIBUÍDA");
             System.out.println("==============================================");
 
-            // ======== CONECTA APENAS UMA VEZ ========
             Socket[] sockets = new Socket[SERVER_IPS.length];
             ObjectOutputStream[] outs = new ObjectOutputStream[SERVER_IPS.length];
             ObjectInputStream[] ins = new ObjectInputStream[SERVER_IPS.length];
@@ -30,7 +29,7 @@ public class DistribuidorThreads {
 
             boolean continuar = true;
 
-            // ======== LOOP PRINCIPAL (SEM DESCONECTAR) ========
+            // ======== LOOP PRINCIPAL ========
             while (continuar) {
 
                 System.out.print("\nDigite o tamanho do vetor que deseja ordenar: ");
@@ -128,7 +127,6 @@ public class DistribuidorThreads {
                 continuar = (resp == 's' || resp == 'S');
             }
 
-            // ======== ENCERRA SERVIDORES SOMENTE AQUI ========
             System.out.println("\nEncerrando servidores...");
 
             for (int i = 0; i < SERVER_IPS.length; i++) {
@@ -151,21 +149,61 @@ public class DistribuidorThreads {
     // =============================================
     // FUNÇÕES DE MERGE
     // =============================================
-    private static byte[] mergeVariosVetores(byte[][] vetores) {
-        while (vetores.length > 1) {
-            int novaQtd = (vetores.length + 1) / 2;
-            byte[][] novos = new byte[novaQtd][];
+    private static byte[] mergeVariosVetores(byte[][] vetoresEntrada) throws InterruptedException {
+        int numProcessadores = Runtime.getRuntime().availableProcessors();
 
-            for (int i = 0; i < vetores.length / 2; i++) {
-                novos[i] = mergeDoisVetores(vetores[i * 2], vetores[i * 2 + 1]);
+        byte[][] vetores = vetoresEntrada;
+
+        while (vetores.length > 1) {
+
+            final byte[][] vetoresFixos = vetores;
+
+            int qtdVetores = vetoresFixos.length;
+            int qtdMerges = qtdVetores / 2;
+
+            int threadsNaRodada = Math.min(numProcessadores, qtdMerges);
+
+            Thread[] threads = new Thread[threadsNaRodada];
+            byte[][] resultados = new byte[qtdMerges][];
+
+            final int[] indiceGlobal = {0};
+
+            for (int t = 0; t < threadsNaRodada; t++) {
+                threads[t] = new Thread(() -> {
+                    while (true) {
+                        int idx;
+
+                        synchronized (indiceGlobal) {
+                            if (indiceGlobal[0] >= qtdMerges) break;
+                            idx = indiceGlobal[0]++;
+                        }
+
+                        byte[] a = vetoresFixos[idx * 2];
+                        byte[] b = vetoresFixos[idx * 2 + 1];
+
+                        resultados[idx] = mergeDoisVetores(a, b);
+                    }
+                });
+
+                threads[t].start();
             }
 
-            if (vetores.length % 2 != 0) {
-                novos[novaQtd - 1] = vetores[vetores.length - 1];
+            for (Thread t : threads) t.join();
+
+            int novaQtd = qtdMerges + (qtdVetores % 2);
+            byte[][] novos = new byte[novaQtd][];
+
+            for (int i = 0; i < qtdMerges; i++) {
+                novos[i] = resultados[i];
+            }
+
+            if (qtdVetores % 2 != 0) {
+                novos[novaQtd - 1] = vetoresFixos[qtdVetores - 1];
             }
 
             vetores = novos;
         }
+
         return vetores[0];
     }
 
